@@ -1,0 +1,31 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        update_cache: yes
+        name: docker.io
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Copy Dockerfile to VM
+      copy:
+        src: Dockerfile
+        dest: /home/azureuser/Dockerfile
+
+    - name: Copy HTML file to VM
+      copy:
+        src: index.html
+        dest: /home/azureuser/index.html
+
+    - name: Build Docker image for HTML app
+      command: docker build -t sample-html-app /home/azureuser/
+
+    - name: Run Docker container for HTML app
+      command: docker run -d -p 80:80 sample-html-app
