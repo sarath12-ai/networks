@@ -2,18 +2,8 @@ provider "azurerm" {
   features {}
 }
 
-variable "admin_username" {
-  type    = string
-  default = "azureuser"
-}
-
-variable "admin_password" {
-  type    = string
-  sensitive = true
-}
-
 resource "azurerm_resource_group" "rg" {
-  name     = "Network-Demo"
+  name     = "Network-RG"
   location = "West Europe"
 }
 
@@ -43,7 +33,7 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_subnet" "subnet" {
-  name                 = "mySubnet"
+  name                 = "Infra-Subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.2.0/24"]
@@ -63,14 +53,14 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                = "Network-PublicIP"
+  name                = "App-PIP"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "Network-VM"
+  name                = "Network-Infra-VM"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
@@ -97,21 +87,4 @@ resource "azurerm_container_registry" "acr" {
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
   admin_enabled       = true
-}
-
-output "public_ip" {
-  value = azurerm_public_ip.pip.ip_address
-}
-
-output "acr_login_server" {
-  value = azurerm_container_registry.acr.login_server
-}
-
-output "acr_admin_username" {
-  value = azurerm_container_registry.acr.admin_username
-}
-
-output "acr_admin_password" {
-  value     = azurerm_container_registry.acr.admin_password
-  sensitive = true
 }
