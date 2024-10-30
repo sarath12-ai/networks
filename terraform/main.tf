@@ -13,12 +13,12 @@ variable "admin_password" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "myResourceGroup"
+  name     = "Network-Demo"
   location = "West Europe"
 }
 
 resource "azurerm_network_security_group" "nsg" {
-  name                = "myNetworkSecurityGroup"
+  name                = "Network-NSG"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -36,7 +36,7 @@ resource "azurerm_network_security_group" "nsg" {
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "myVNet"
+  name                = "Network-VNET"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -50,7 +50,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_network_interface" "nic" {
-  name                = "myNIC"
+  name                = "Network-NIC"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -63,14 +63,14 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                = "myPublicIP"
+  name                = "Network-PublicIP"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "myVM"
+  name                = "Network-VM"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
@@ -92,7 +92,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                = "myContainerRegistry"
+  name                = "Network-ACR"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
