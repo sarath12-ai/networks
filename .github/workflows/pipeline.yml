@@ -41,7 +41,12 @@ jobs:
           echo "::set-output name=acr_login_server::$(terraform output -raw acr_login_server)"
           echo "::set-output name=acr_admin_username::$(terraform output -raw acr_admin_username)"
           echo "::set-output name=acr_admin_password::$(terraform output -raw acr_admin_password)"
-
+      - name: Save Terraform state file as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraform-state
+          path: terraform/terraform.tfstate
+          
       - name: Log in to Azure Container Registry
         run: |
           echo ${{ steps.get_ip.outputs.acr_admin_password }} | docker login ${{ steps.get_ip.outputs.acr_login_server }} -u ${{ steps.get_ip.outputs.acr_admin_username }} --password-stdin

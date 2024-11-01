@@ -7,6 +7,12 @@ resource "azurerm_resource_group" "rg" {
   location = "West Europe"
 }
 
+terraform {
+  backend "local" {
+    path = "./terraform.tfstate"  # This is the default path
+  }
+}
+
 resource "azurerm_network_security_group" "nsg" {
   name                = "Network-NSG"
   location            = azurerm_resource_group.rg.location
@@ -53,7 +59,7 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                = "myPublicIP"
+  name                = "Network-PIP"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"  # Change from "Dynamic" to "Static"
