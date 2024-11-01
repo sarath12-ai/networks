@@ -53,11 +53,13 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                = "App-PIP"
+  name                = "myPublicIP"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"  # Change from "Dynamic" to "Static"
+  sku                 = "Standard" # Add SKU to match Static allocation requirement
 }
+
 
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "Network-Infra-VM"
@@ -82,7 +84,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                = "networkacr" # Update to a valid alphanumeric name
+  name                = "networkacrnpyla" # Update to a valid alphanumeric name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
