@@ -1,13 +1,34 @@
 ---
-# main.yml
+# Ansible role to install and configure Docker on the server
+
+- name: Update and install prerequisites
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
 - name: Install Docker
   apt:
-    name: docker.io
+    name: docker-ce
     state: present
-    update_cache: yes
+    update_cache: true
 
-- name: Start Docker
+- name: Ensure Docker service is running
   service:
     name: docker
     state: started
-    enabled: yes
+    enabled: true

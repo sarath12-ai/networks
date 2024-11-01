@@ -57,4 +57,19 @@ jobs:
         run: |
           docker push ${{ steps.get_ip.outputs.acr_login_server }}/flask_app:${{ github.sha }}
 
-     
+      - name: Update Ansible inventory with VM IP
+        run: |
+          echo "[all]" > ansible/inventory.ini
+          echo "${{ steps.get_ip.outputs.public_ip }} ansible_user=${{ env.ADMIN_USERNAME }} ansible_password=${{ env.ADMIN_PASSWORD }} ansible_connection=ssh ansible_port=22" >> ansible/inventory.ini
+
+      - name: Install Ansible
+        run: sudo apt-get update && sudo apt-get install -y ansible
+
+      - name: Run Ansible Playbook to configure server and deploy Docker container
+        env:
+          ACR_LOGIN_SERVER: ${{ steps.get_ip.outputs.acr_login_server }}
+          ACR_ADMIN_USERNAME: ${{ steps.get_ip.outputs.acr_admin_username }}
+          ACR_ADMIN_PASSWORD: ${{ steps.get_ip.outputs.acr_admin_password }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
