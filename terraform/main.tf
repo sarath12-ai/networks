@@ -87,6 +87,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
+disable_password_authentication = false
 }
 
 resource "azurerm_container_registry" "acr" {
