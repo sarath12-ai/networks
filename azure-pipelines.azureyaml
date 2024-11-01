@@ -1,91 +1,60 @@
-trigger:
-  branches:
-    include:
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
       - main
 
-pool:
-  vmImage: 'ubuntu-latest'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ADMIN_USERNAME: "azureuser"
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
-variables:
-  azureServiceConnection: 'AzureServiceConnection'  # Replace with the name of your Azure service connection
-  terraformWorkingDirectory: './terraform'
-  ansibleWorkingDirectory: './ansible'
-  adminUsername: 'azureuser'    # Change if needed
-  sshPublicKey: '$(System.DefaultWorkingDirectory)/terraform/ssh_key.pub'
-  sshPrivateKey: '$(System.DefaultWorkingDirectory)/terraform/ssh_key'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-stages:
-  - stage: DeployVM
-    displayName: "Deploy VM with Terraform"
-    jobs:
-      - job: TerraformDeploy
-        displayName: "Provision VM in Azure with Terraform"
-        steps:
-          - checkout: self
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
 
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.x'
+      - name: Initialize Terraform
+        working-directory: terraform
+        run: terraform init
 
-          - task: UseDotNet@2
-            inputs:
-              packageType: 'sdk'
-              version: '6.x'
+      - name: Apply Terraform to provision infrastructure
+        working-directory: terraform
+        run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}"
 
-          - task: TerraformInstaller@0
-            inputs:
-              terraformVersion: '1.0.10'
+      - name: Retrieve output variables from Terraform
+        id: get_ip
+        working-directory: terraform
+        run: |
+          echo "::set-output name=public_ip::$(terraform output -raw public_ip)"
+          echo "::set-output name=acr_login_server::$(terraform output -raw acr_login_server)"
+          echo "::set-output name=acr_admin_username::$(terraform output -raw acr_admin_username)"
+          echo "::set-output name=acr_admin_password::$(terraform output -raw acr_admin_password)"
 
-          - script: |
-              ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ssh_key -N ""
-            displayName: "Generate SSH Key for VM Access"
+      - name: Log in to Azure Container Registry
+        run: |
+          echo ${{ steps.get_ip.outputs.acr_admin_password }} | docker login ${{ steps.get_ip.outputs.acr_login_server }} -u ${{ steps.get_ip.outputs.acr_admin_username }} --password-stdin
 
-          - task: CopyFiles@2
-            inputs:
-              SourceFolder: '.'
-              Contents: 'ssh_key*'
-              TargetFolder: '$(System.DefaultWorkingDirectory)/terraform'
+      - name: Build Docker image
+        working-directory: app
+        run: |
+          docker build -t flask_app:${{ github.sha }} .
+          docker tag flask_app:${{ github.sha }} ${{ steps.get_ip.outputs.acr_login_server }}/flask_app:${{ github.sha }}
 
-          - task: TerraformCLI@0
-            inputs:
-              command: 'init'
-              workingDirectory: $(terraformWorkingDirectory)
-              commandOptions: '-input=false'
+      - name: Push Docker image to ACR
+        working-directory: app
+        run: |
+          docker push ${{ steps.get_ip.outputs.acr_login_server }}/flask_app:${{ github.sha }}
 
-          - task: TerraformCLI@0
-            inputs:
-              command: 'apply'
-              workingDirectory: $(terraformWorkingDirectory)
-              commandOptions: '-auto-approve -var="admin_username=$(adminUsername)" -var="ssh_public_key=$(sshPublicKey)"'
-
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: $(azureServiceConnection)
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                echo "Getting VM Public IP"
-                vm_ip=$(az network public-ip show --resource-group myResourceGroup --name myVM-pip --query ipAddress -o tsv)
-                echo "##vso[task.setvariable variable=VM_IP]$vm_ip"
-
-  - stage: ConfigureAndDeploy
-    displayName: "Configure VM and Deploy Docker Container"
-    dependsOn: DeployVM
-    jobs:
-      - job: AnsibleConfigure
-        displayName: "Configure VM with Ansible and Deploy Docker Container"
-        steps:
-          - checkout: self
-
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.x'
-
-          - script: |
-              echo "[myvm]" > $(ansibleWorkingDirectory)/inventory
-              echo "$(VM_IP) ansible_ssh_user=$(adminUsername) ansible_ssh_private_key_file=$(sshPrivateKey)" >> $(ansibleWorkingDirectory)/inventory
-            displayName: "Generate Ansible Inventory File"
-
-          - script: |
-              ansible-playbook -i $(ansibleWorkingDirectory)/inventory $(ansibleWorkingDirectory)/configure_vm.yml
-            displayName: "Run Ansible Playbook"
+     
