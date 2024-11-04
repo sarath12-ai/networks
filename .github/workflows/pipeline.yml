@@ -25,27 +25,35 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.0
-      # - name: Azure Login
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Initialize Terraform
         working-directory: terraform
         run: terraform init
-      - name: Check if Resource Group Exists
-        id: rg_check
+      - name: Check if Resource Group Exists in Azure
+        id: rg_exists_check
         run: |
-          if az group show --name $RESOURCE_GROUP_NAME --subscription $ARM_SUBSCRIPTION_ID; then
-            echo "exists=true" >> $GITHUB_ENV
+          if az group show --name $RESOURCE_GROUP_NAME --subscription $AZURE_SUBSCRIPTION_ID; then
+            echo "exists_in_azure=true" >> $GITHUB_ENV
           else
-            echo "exists=false" >> $GITHUB_ENV
+            echo "exists_in_azure=false" >> $GITHUB_ENV
           fi
   
-      - name: Import Resource Group if Exists
-        if: env.exists == 'true'
+      - name: Check if Resource Group Exists in Terraform State
+        id: rg_state_check
+        run: |
+            if terraform state show data.azurerm_resource_group.rg; then
+              echo "exists_in_state=true" >> $GITHUB_ENV
+            else
+              echo "exists_in_state=false" >> $GITHUB_ENV
+            fi    
+      - name: Import Resource Group into Terraform State if Needed
+        if: env.exists_in_azure == 'true' && env.exists_in_state == 'false'
         run: terraform import azurerm_resource_group.rg "/subscriptions/${{ env.ARM_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP_NAME }}"
-      - name: Apply Terraform to provision infrastructure
-        working-directory: terraform
+    
+      - working-directory: terraform
         run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}"
 
       - name: Retrieve output variables from Terraform
