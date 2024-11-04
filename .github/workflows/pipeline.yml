@@ -29,6 +29,11 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Download Terraform state file
+        uses: actions/download-artifact@v2
+        with:
+            name: terraform-state
+            path: terraform  # Download into the 'terraform' directory
       - name: Initialize Terraform
         working-directory: terraform
         run: terraform init
@@ -55,15 +60,50 @@ jobs:
     
       - working-directory: terraform
         run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}"
+      - name: Save Terraform state file as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraform-state
+          path: terraform/terraform.tfstate
 
       - name: Retrieve output variables from Terraform
         id: get_ip
         working-directory: terraform
         run: |
-          echo "public_ip=$(terraform output -raw public_ip)" >> $GITHUB_ENV
-          echo "acr_login_server=$(terraform output -raw acr_login_server)" >> $GITHUB_ENV
-          echo "acr_admin_username=$(terraform output -raw acr_admin_username)" >> $GITHUB_ENV
-          echo "acr_admin_password=$(terraform output -raw acr_admin_password)" >> $GITHUB_ENV
+          # Check Terraform outputs and export them as environment variables
+          echo "Retrieving Terraform outputs for debug..."
+          terraform output
+      
+          # Set outputs if they exist; otherwise, exit with error for missing outputs
+          if terraform output -raw public_ip &>/dev/null; then
+            echo "public_ip=$(terraform output -raw public_ip)" >> $GITHUB_ENV
+          else
+            echo "Error: public_ip output not found in Terraform state." >&2
+            exit 1
+          fi
+      
+          if terraform output -raw acr_login_server &>/dev/null; then
+            echo "acr_login_server=$(terraform output -raw acr_login_server)" >> $GITHUB_ENV
+          else
+            echo "Error: acr_login_server output not found in Terraform state." >&2
+            exit 1
+          fi
+      
+          if terraform output -raw acr_admin_username &>/dev/null; then
+            echo "acr_admin_username=$(terraform output -raw acr_admin_username)" >> $GITHUB_ENV
+          else
+            echo "Error: acr_admin_username output not found in Terraform state." >&2
+            exit 1
+          fi
+      
+          if terraform output -raw acr_admin_password &>/dev/null; then
+            echo "acr_admin_password=$(terraform output -raw acr_admin_password)" >> $GITHUB_ENV
+          else
+            echo "Error: acr_admin_password output not found in Terraform state." >&2
+            exit 1
+          fi
+      
+      
       
       - name: Log in to Azure Container Registry
         run: |
