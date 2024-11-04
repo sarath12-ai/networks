@@ -87,11 +87,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
 disable_password_authentication = false
 }
 
-resource "azurerm_container_registry" "acr" {
-  name                = "networkacrnpyla" # Update to a valid alphanumeric name
-  location            = data.azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  sku                 = "Basic"
-  admin_enabled       = true
-}
+# resource "azurerm_container_registry" "acr" {
+#   name                = "networkacrnpyla" # Update to a valid alphanumeric name
+#   location            = data.azurerm_resource_group.rg.location
+#   resource_group_name = data.azurerm_resource_group.rg.name
+#   sku                 = "Basic"
+#   admin_enabled       = true
+# }
 

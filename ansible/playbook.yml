@@ -1,16 +1,51 @@
+---
 - hosts: all
   become: true
-  roles:
-    - docker  # Calls the Docker role defined in ansible/roles/docker/tasks/main.yml
-
   tasks:
-    - name: Log in to Azure Container Registry
-      shell: echo "{{ lookup('env', 'ACR_ADMIN_PASSWORD') }}" | docker login "{{ lookup('env', 'ACR_LOGIN_SERVER') }}" -u "{{ lookup('env', 'ACR_ADMIN_USERNAME') }}" --password-stdin
+    - name: Update apt and install prerequisites
+      apt:
+        update_cache: yes
 
-    - name: Pull Docker image from ACR
-      shell: docker pull {{ lookup('env', 'ACR_LOGIN_SERVER') }}/flask_app:{{ lookup('env', 'IMAGE_TAG') }}
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
 
-    - name: Run Flask Docker container
-      shell: |
-        docker rm -f flask_app || true
-        docker run -d --name flask_app -p 80:5000 {{ lookup('env', 'ACR_LOGIN_SERVER') }}/flask_app:{{ lookup('env', 'IMAGE_TAG') }}
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Add current user to Docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Create application directory
+      file:
+        path: /home/{{ ansible_user }}/app
+        state: directory
+        mode: '0755'
+
+    - name: Copy application code to VM
+      copy:
+        src: ../app/  # Path to your local app directory
+        dest: /home/{{ ansible_user }}/app
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Build Docker image on VM
+      command: docker build -t flask_app:latest /home/{{ ansible_user }}/app
+      args:
+        chdir: /home/{{ ansible_user }}/app
+
+    - name: Run Docker container
+      command: docker run -d --name flask_app -p 80:5000 flask_app:latest
+      ignore_errors: true  # Ignore if container is already running
+
+    - name: Restart Docker container if already running
+      command: docker restart flask_app
+      when: result is failed
