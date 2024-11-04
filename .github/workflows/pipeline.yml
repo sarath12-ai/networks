@@ -15,6 +15,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ADMIN_USERNAME: "azureuser"
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      RESOURCE_GROUP_NAME: "Network-RG"
 
     steps:
       - name: Checkout code
@@ -24,11 +25,25 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.0
-
+      # - name: Azure Login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Initialize Terraform
         working-directory: terraform
         run: terraform init
-
+      - name: Check if Resource Group Exists
+        id: rg_check
+        run: |
+          if az group show --name $RESOURCE_GROUP_NAME --subscription $ARM_SUBSCRIPTION_ID; then
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "exists=false" >> $GITHUB_ENV
+          fi
+  
+      - name: Import Resource Group if Exists
+        if: env.exists == 'true'
+        run: terraform import azurerm_resource_group.rg "/subscriptions/${{ env.ARM_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP_NAME }}"
       - name: Apply Terraform to provision infrastructure
         working-directory: terraform
         run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}"
