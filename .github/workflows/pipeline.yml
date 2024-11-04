@@ -82,7 +82,7 @@ jobs:
             ACR_ADMIN_USERNAME=$(terraform output -raw acr_admin_username 2>/dev/null || echo "not_found")
             ACR_ADMIN_PASSWORD=$(terraform output -raw acr_admin_password 2>/dev/null || echo "not_found")
             
-            if [[ "$PUBLIC_IP" == "not_found"]]; then
+            if [ -z "$PUBLIC_IP" ]; then
               echo "failed to retrieve valid public IP from terraform output"
               exit 1
             else
