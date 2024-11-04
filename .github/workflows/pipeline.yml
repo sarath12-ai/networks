@@ -60,45 +60,39 @@ jobs:
         id: get_ip
         working-directory: terraform
         run: |
-          echo "::set-output name=public_ip::$(terraform output -raw public_ip)"
-          echo "::set-output name=acr_login_server::$(terraform output -raw acr_login_server)"
-          echo "::set-output name=acr_admin_username::$(terraform output -raw acr_admin_username)"
-          echo "::set-output name=acr_admin_password::$(terraform output -raw acr_admin_password)"
-      
-      - name: Set ACR Environment Variables
-        run: |
-          echo "ACR_LOGIN_SERVER=${{ steps.get_ip.outputs.acr_login_server }}" >> $GITHUB_ENV
-          echo "ACR_ADMIN_USERNAME=${{ steps.get_ip.outputs.acr_admin_username }}" >> $GITHUB_ENV
-          echo "ACR_ADMIN_PASSWORD=${{ steps.get_ip.outputs.acr_admin_password }}" >> $GITHUB_ENV
+          echo "public_ip=$(terraform output -raw public_ip)" >> $GITHUB_ENV
+          echo "acr_login_server=$(terraform output -raw acr_login_server)" >> $GITHUB_ENV
+          echo "acr_admin_username=$(terraform output -raw acr_admin_username)" >> $GITHUB_ENV
+          echo "acr_admin_password=$(terraform output -raw acr_admin_password)" >> $GITHUB_ENV
       
       - name: Log in to Azure Container Registry
         run: |
-          echo "${{ env.ACR_ADMIN_PASSWORD }}" | docker login ${{ env.ACR_LOGIN_SERVER }} -u ${{ env.ACR_ADMIN_USERNAME }} --password-stdin
+          echo "${{ env.acr_admin_password }}" | docker login ${{ env.acr_login_server }} -u ${{ env.acr_admin_username }} --password-stdin
       
       - name: Build Docker image
         working-directory: app
         run: |
           docker build -t flask_app:${{ github.sha }} .
-          docker tag flask_app:${{ github.sha }} ${{ env.ACR_LOGIN_SERVER }}/flask_app:${{ github.sha }}
+          docker tag flask_app:${{ github.sha }} ${{ env.acr_login_server }}/flask_app:${{ github.sha }}
       
       - name: Push Docker image to ACR
         working-directory: app
         run: |
-          docker push ${{ env.ACR_LOGIN_SERVER }}/flask_app:${{ github.sha }}
+          docker push ${{ env.acr_login_server }}/flask_app:${{ github.sha }}
       
       - name: Update Ansible inventory with VM IP
         run: |
           echo "[all]" > ansible/inventory.ini
-          echo "${{ steps.get_ip.outputs.public_ip }} ansible_user=${{ env.ADMIN_USERNAME }} ansible_password=${{ env.ADMIN_PASSWORD }} ansible_connection=ssh ansible_port=22" >> ansible/inventory.ini
+          echo "${{ env.public_ip }} ansible_user=${{ env.ADMIN_USERNAME }} ansible_password=${{ env.ADMIN_PASSWORD }} ansible_connection=ssh ansible_port=22" >> ansible/inventory.ini
       
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
       
       - name: Run Ansible Playbook to configure server and deploy Docker container
         env:
-          ACR_LOGIN_SERVER: ${{ env.ACR_LOGIN_SERVER }}
-          ACR_ADMIN_USERNAME: ${{ env.ACR_ADMIN_USERNAME }}
-          ACR_ADMIN_PASSWORD: ${{ env.ACR_ADMIN_PASSWORD }}
+          ACR_LOGIN_SERVER: ${{ env.acr_login_server }}
+          ACR_ADMIN_USERNAME: ${{ env.acr_admin_username }}
+          ACR_ADMIN_PASSWORD: ${{ env.acr_admin_password }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
