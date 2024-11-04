@@ -34,6 +34,7 @@ jobs:
         with:
             name: terraform-state
             path: terraform  # Download into the 'terraform' directory
+        continue-on-error: true
       - name: Initialize Terraform
         working-directory: terraform
         run: terraform init
