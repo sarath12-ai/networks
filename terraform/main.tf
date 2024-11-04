@@ -86,7 +86,7 @@ disable_password_authentication = false
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                = "networkacrnaidupyla" # Update to a valid alphanumeric name
+  name                = "networkacrnaidupyla1" # Update to a valid alphanumeric name
   location            = var.location
   resource_group_name = var.resource_group_name
   sku                 = "Basic"
