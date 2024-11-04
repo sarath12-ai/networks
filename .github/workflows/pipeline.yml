@@ -29,12 +29,12 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Download Terraform state file
-        uses: actions/download-artifact@v3
-        with:
-            name: terraform-state
-            path: terraform  # Download into the 'terraform' directory
-        continue-on-error: true
+      # - name: Download Terraform state file
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #       name: terraform-state
+      #       path: terraform  # Download into the 'terraform' directory
+      #   continue-on-error: true
       - name: Initialize Terraform
         working-directory: terraform
         run: terraform init
@@ -61,12 +61,16 @@ jobs:
     
       - working-directory: terraform
         run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}"
-      - name: Save Terraform state file as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: terraform-state
-          path: terraform/terraform.tfstate
-
+      # - name: Save Terraform state file as artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: terraform-state
+      #     path: terraform/terraform.tfstate
+      - name: Debug Terraform outputs
+        working-directory: terraform
+        run: |
+         terraform output
+         terraform output -json
       - name: Retrieve output variables from Terraform
         id: get_ip
         working-directory: terraform
