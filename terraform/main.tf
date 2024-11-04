@@ -7,7 +7,10 @@ terraform {
     path = "./terraform.tfstate"  # This is the default path
   }
 }
-
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
+  location = var.location
+}
 resource "azurerm_network_security_group" "nsg" {
   name                = "Network-NSG"
   location            = var.location
