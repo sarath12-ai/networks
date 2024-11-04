@@ -9,12 +9,11 @@ terraform {
 }
 data "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
-  location = var.location
 }
 resource "azurerm_network_security_group" "nsg" {
   name                = "Network-NSG"
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
 
   security_rule {
     name                       = "SSH"
@@ -32,21 +31,21 @@ resource "azurerm_network_security_group" "nsg" {
 resource "azurerm_virtual_network" "vnet" {
   name                = "Network-VNET"
   address_space       = ["10.0.0.0/16"]
-   location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
 }
 
 resource "azurerm_subnet" "subnet" {
   name                 = "Infra-Subnet"
-  resource_group_name  = var.resource_group_name
+  resource_group_name  = data.azurerm_resource_group.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.2.0/24"]
 }
 
 resource "azurerm_network_interface" "nic" {
   name                = "Network-NIC"
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "internal"
@@ -58,8 +57,8 @@ resource "azurerm_network_interface" "nic" {
 
  resource "azurerm_public_ip" "pip" {
    name                = "Network-PIP"
-   location            = var.location
-   resource_group_name = azurerm_resource_group.rg.name
+   location            = data.azurerm_resource_group.rg.location
+   resource_group_name = data.azurerm_resource_group.rg.name
    allocation_method   = "Static"  # Change from "Dynamic" to "Static"
    sku                 = "Standard" # Add SKU to match Static allocation requirement
  }
@@ -67,8 +66,8 @@ resource "azurerm_network_interface" "nic" {
 
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "Network-Infra-VM"
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   size                = "Standard_B1s"
   admin_username      = var.admin_username
   admin_password      = var.admin_password
@@ -90,8 +89,8 @@ disable_password_authentication = false
 
 resource "azurerm_container_registry" "acr" {
   name                = "networkacrnpyla" # Update to a valid alphanumeric name
-  location            = var.location
-  resource_group_name = var.resource_group_name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   sku                 = "Basic"
   admin_enabled       = true
 }
