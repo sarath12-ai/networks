@@ -76,13 +76,19 @@ jobs:
         working-directory: terraform
         run: |
             # Attempt to retrieve each output and handle errors gracefully
-            PUBLIC_IP=$(terraform output -raw public_ip 2>/dev/null || echo "not_found")
+            RAW_OUTPUT=$(terraform output -raw public_ip 2>/dev/null || echo "not_found")
+            PUBLIC_IP=$(echo "$RAW_OUTPUT" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' || echo "not found")
             ACR_LOGIN_SERVER=$(terraform output -raw acr_login_server 2>/dev/null || echo "not_found")
             ACR_ADMIN_USERNAME=$(terraform output -raw acr_admin_username 2>/dev/null || echo "not_found")
             ACR_ADMIN_PASSWORD=$(terraform output -raw acr_admin_password 2>/dev/null || echo "not_found")
-        
+            
+            if [[ "$PUBLIC_IP" == "not_found"]]; then
+              echo "failed to retrieve valid public IP from terraform output"
+              exit 1
+            else
+              echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV
             # Write to GitHub environment file with the correct format
-            echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV
+            # echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV
             echo "acr_login_server=${ACR_LOGIN_SERVER}" >> $GITHUB_ENV
             echo "acr_admin_username=${ACR_ADMIN_USERNAME}" >> $GITHUB_ENV
             echo "acr_admin_password=${ACR_ADMIN_PASSWORD}" >> $GITHUB_ENV
