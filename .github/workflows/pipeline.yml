@@ -66,7 +66,7 @@ jobs:
         run: terraform import azurerm_resource_group.rg "/subscriptions/${{ env.ARM_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP_NAME }}"
     
       - working-directory: terraform
-        run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }} -var="agent_public_ip=${{ env.public_ip1 }}"
+        run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}" -var="agent_public_ip=${{ env.public_ip1 }}"
       # - name: Save Terraform state file as artifact
       #   uses: actions/upload-artifact@v3
       #   with:
