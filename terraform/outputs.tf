@@ -1,11 +1,6 @@
 output "public_ip" {
   value = azurerm_public_ip.pip.ip_address
 }
-
-output "vm_name" {
-  value = azurerm_virtual_machine.vm.name
-  description = "The name of the virtual machine."
-}
 # output "acr_login_server" {
 #   value = azurerm_container_registry.acr.login_server
 # }

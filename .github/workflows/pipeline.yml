@@ -35,11 +35,11 @@ jobs:
       #       name: terraform-state
       #       path: terraform  # Download into the 'terraform' directory
       #   continue-on-error: true
-      - name: Get DevOps Agent Public IP
-        id: get_public_ip1
-        run: |
-          PUBLIC_IP1=$(curl -s https://api.ipify.org)
-          echo "public_ip1=$PUBLIC_IP1" >> $GITHUB_ENV
+      # - name: Get DevOps Agent Public IP
+      #   id: get_public_ip1
+      #   run: |
+      #     PUBLIC_IP1=$(curl -s https://api.ipify.org)
+      #     echo "public_ip1=$PUBLIC_IP1" >> $GITHUB_ENV
 
       - name: Initialize Terraform
         working-directory: terraform
@@ -66,7 +66,7 @@ jobs:
         run: terraform import azurerm_resource_group.rg "/subscriptions/${{ env.ARM_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP_NAME }}"
     
       - working-directory: terraform
-        run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}" -var="agent_public_ip=${{ env.public_ip1 }}"
+        run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}"
       # - name: Save Terraform state file as artifact
       #   uses: actions/upload-artifact@v3
       #   with:
@@ -78,38 +78,22 @@ jobs:
          terraform output
          terraform output -json
        
-      - name: Retrieve Public IP from Azure
-        id: get_public_ip
-        run: |
-         PUBLIC_IP=$(az network public-ip show \
-            --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
-            --name Network-PIP \
-            --query ipAddress -o tsv)
-          vm_name=$(terraform output -raw vm_name)  
-          echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV
-          echo "VM_NAME=${vm_name}" >> $GITHUB_ENV
+      # - name: Retrieve Public IP from Azure
+      #   id: get_public_ip
+      #   run: |
+      #    PUBLIC_IP=$(az network public-ip show \
+      #       --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+      #       --name Network-PIP \
+      #       --query ipAddress -o tsv)
+      #     vm_name=$(terraform output -raw vm_name)  
+      #     echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV
+      #     echo "VM_NAME=${vm_name}" >> $GITHUB_ENV
 
       - name: Update Ansible inventory with VM IP
         run: |
           echo "[all]" > ansible/inventory.ini
-          echo "${{ env.public_ip }} ansible_user=${{ env.ADMIN_USERNAME }} ansible_password=${{ env.ADMIN_PASSWORD }} ansible_connection=ssh ansible_port=22" >> ansible/inventory.ini
-      - name: Request JIT Access for VM
-        id: request_jit_access
-        run: |
-            az security jit-policy initiate --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
-              --name ${{ env.VM_NAME }} \
-              --ports "22" \
-              --duration "PT1H"
-  
-      - name: Wait for JIT Access to be Granted
-        id: wait_for_jit_access
-        run: |
-            for i in {1..10}; do
-              nc -zvw3 ${{ env.public_ip }} 22 && echo "SSH is now accessible." && exit 0
-              echo "Waiting for SSH access to be granted..."
-              sleep 10
-            done
-            echo "Failed to establish SSH access." && exit 1
+          echo "${{ env.public_ip }} ansible_user=${{ env.ADMIN_USERNAME }} ansible_password=${{ env.ADMIN_PASSWORD }} ansible_connection=ssh ansible_port=22" >> ansible/inventory.ini  
+    
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
 
