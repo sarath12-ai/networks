@@ -16,3 +16,7 @@ variable "location" {
   description = "Azure location of the existing Resource Group"
   type        = string
 }
+variable "agent_public_ip" {
+  description = "The public IP of the DevOps agent running the pipeline"
+  type        = string
+}
