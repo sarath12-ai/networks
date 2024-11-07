@@ -69,25 +69,25 @@ jobs:
         run: |
           echo "[azure_vm]" > inventory
           echo "${{ env.public_ip }} ansible_user=azureuser ansible_password=${{ secrets.ADMIN_PASSWORD }} ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> inventory
-      - name: Ensure Python 3 is Installed on VM
-        uses: docker://cytopia/ansible:latest
-        with:
-          args: >
-              ansible-playbook -i inventory -c paramiko -e "ansible_user=azureuser"
-              -e "ansible_password=${{ secrets.AZURE_VM_PASSWORD }}" 
-              -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
-              -e "ansible_python_interpreter=/usr/bin/python3"
-              - <<'EOF'
-              ---
-              - name: Ensure Python 3 is installed
-                hosts: azure_vm
-                gather_facts: false
-                tasks:
-                  - name: Install Python 3 on the VM using raw command
-                    raw: |
-                      sudo apt-get update -y
-                      sudo apt-get install -y python3 python3-apt
-              EOF
+      # - name: Ensure Python 3 is Installed on VM
+      #   uses: docker://cytopia/ansible:latest
+      #   with:
+      #     args: >
+      #         ansible-playbook -i inventory -c paramiko -e "ansible_user=azureuser"
+      #         -e "ansible_password=${{ secrets.AZURE_VM_PASSWORD }}" 
+      #         -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
+      #         -e "ansible_python_interpreter=/usr/bin/python3"
+      #         - <<'EOF'
+      #         ---
+      #         - name: Ensure Python 3 is installed
+      #           hosts: azure_vm
+      #           gather_facts: false
+      #           tasks:
+      #             - name: Install Python 3 on the VM using raw command
+      #               raw: |
+      #                 sudo apt-get update -y
+      #                 sudo apt-get install -y python3 python3-apt
+      #         EOF
     
       - name: Run Ansible Playbook for Deployment
         uses: docker://cytopia/ansible:latest
