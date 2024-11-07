@@ -70,9 +70,5 @@ jobs:
           echo "[azure_vm]" > inventory
           echo "${{ env.public_ip }} ansible_user=azureuser ansible_password=${{ secrets.ADMIN_PASSWORD }} ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> inventory
 
-      # Run Ansible Playbook
       - name: Run Ansible Playbook
-        uses: ansible/ansible-runner-action@v2
-        with:
-          playbook: ansible-playbook.yml
-          inventory: inventory
+        run: ansible-playbook -i inventory ansible-playbook.yml
