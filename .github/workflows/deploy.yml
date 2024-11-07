@@ -93,5 +93,8 @@ jobs:
         uses: docker://cytopia/ansible:latest
         with:
           args: >
-            ansible-playbook -i inventory ansible-playbook.yml    
+            /bin/sh -c "
+            apt-get update && apt-get install -y sshpass &&
+            ansible-playbook -i inventory ansible-playbook.yml 
+            "  
 
