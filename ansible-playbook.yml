@@ -1,0 +1,37 @@
+# ansible-playbook.yml
+
+- name: Set up Docker and deploy container on Azure VM
+  hosts: all
+  become: true
+  tasks:
+    # Install Docker
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # Copy Dockerfile from local to VM
+    - name: Copy Dockerfile to VM
+      copy:
+        src: ./Dockerfile
+        dest: /home/azureuser/Dockerfile
+        owner: azureuser
+        mode: '0644'
+
+    # Build Docker image
+    - name: Build Docker image
+      command: docker build -t myapp:latest /home/azureuser
+
+    # Run Docker container
+    - name: Run Docker container
+      command: docker run -d -p 80:80 myapp:latest
