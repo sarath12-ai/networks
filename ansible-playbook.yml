@@ -21,6 +21,16 @@
         enabled: yes
 
     # Copy Dockerfile from local to VM
+    - name: Ensure /tmp has the correct permissions
+      ansible.builtin.command: chmod 1777 /tmp
+      become: true
+    - name: Example Playbook with become
+      hosts: azure_vm
+      become: true  # Escalates privileges to allow directory creation in /tmp
+      tasks:
+        - name: Gather facts
+          ansible.builtin.setup:
+
     - name: Copy Dockerfile to VM
       copy:
         src: ./Dockerfile
