@@ -96,7 +96,7 @@ jobs:
             /bin/sh -c "
             apk update &&
             apk add --no-cache sshpass &&
-            ansible-playbook -i inventory -e 'ansible_user=azureuser ansible_password=${{ secrets.ADMIN_PASSWORD }}' -e 'ansible_ssh_common_args=-o StrictHostKeyChecking=no' ansible.cfg ansible-playbook.yml
+            ansible-playbook -i inventory ansible-playbook.yml
             "
 
 
