@@ -54,7 +54,7 @@ jobs:
         id: get_public_ip
         run: |
          PUBLIC_IP=$(az network public-ip show \
-            --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+            --resource-group Network-RG1 \
             --name Network-PIP \
             --query ipAddress -o tsv)
           vm_name=$(terraform output -raw vm_name)  
