@@ -92,9 +92,10 @@ jobs:
       - name: Run Ansible Playbook for Deployment
         uses: docker://cytopia/ansible:latest
         with:
-          args: >
-            /bin/sh -c "
-            apt-get update && apt-get install -y sshpass &&
-            ansible-playbook -i inventory ansible-playbook.yml 
-            "  
+         args: |
+          /bin/sh -c "
+          apk update &&
+          apk add --no-cache sshpass &&
+          ansible-playbook -i inventory ansible-playbook.yml
+          "
 
