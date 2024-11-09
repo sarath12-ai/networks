@@ -1,3 +1,4 @@
+---
 # ansible-playbook.yml
 
 - name: Set up Docker and deploy container on Azure VM
@@ -6,42 +7,47 @@
   tasks:
     # Install Docker
     - name: Update apt packages
-      apt:
+      ansible.builtin.apt:
         update_cache: yes
 
     - name: Install Docker
-      apt:
+      ansible.builtin.apt:
         name: docker.io
         state: present
 
     - name: Start Docker service
-      service:
+      ansible.builtin.service:
         name: docker
         state: started
         enabled: yes
 
-    # Copy Dockerfile from local to VM
+    # Ensure /tmp has correct permissions (optional, often not necessary)
     - name: Ensure /tmp has the correct permissions
-      ansible.builtin.command: chmod 1777 /tmp
-      become: true
-    - name: Example Playbook with become
-      hosts: azure_vm
-      become: true  # Escalates privileges to allow directory creation in /tmp
-      tasks:
-        - name: Gather facts
-          ansible.builtin.setup:
+      ansible.builtin.command:
+        cmd: chmod 1777 /tmp
 
+    # Copy Dockerfile to VM
     - name: Copy Dockerfile to VM
-      copy:
-        src: ./Dockerfile
+      ansible.builtin.copy:
+        src: ./Dockerfile   # Adjust path to match your folder structure
         dest: /home/azureuser/Dockerfile
+        owner: azureuser
+        mode: '0644'
+
+    # Copy application code to VM
+    - name: Copy application code to VM
+      ansible.builtin.copy:
+        src: ./html/index.html  # Adjust path as necessary
+        dest: /home/azureuser/index.html
         owner: azureuser
         mode: '0644'
 
     # Build Docker image
     - name: Build Docker image
-      command: docker build -t myapp:latest /home/azureuser
+      ansible.builtin.command:
+        cmd: docker build -t myapp:latest /home/azureuser
 
     # Run Docker container
     - name: Run Docker container
-      command: docker run -d -p 80:80 myapp:latest
+      ansible.builtin.command:
+        cmd: docker run -d -p 80:80 myapp:latest
