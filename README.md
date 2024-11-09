@@ -1,7 +1,4 @@
-├── Terraform/ │ ├── main.tf │ ├── variables.tf │ ├── outputs.tf │ └── provider.tf ├── Ansible/ │ ├── ansible.cfg │ ├── inventory │ └── playbook.yml ├── Docker/ │ ├── Dockerfile │ └── index.html ├── Azure-Pipelines/ │ └── azure-pipelines.yml └── README.md
-
-markdown
-Copy code
+├── Terraform/ │ ├── main.tf │ ├── variables.tf │ ├── outputs.tf │ └── provider.tf ├── Ansible/ │ ├── ansible.cfg │ ├── inventory │ └── playbook.yml ├── Docker/ │ ├── Dockerfile │ └── index.html ├── Azure-Pipelines/ │ └── azure-pipelines.yml └── 
 
 ## 🛠️ Tools and Technologies Used
 - **Terraform**: For provisioning infrastructure on Azure.
