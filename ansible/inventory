@@ -1,0 +1,2 @@
+[webserver]
+<YOUR_SERVER_IP> ansible_user=azureuser ansible_password=P@ssword1234! ansible_python_interpreter=/usr/bin/python3
