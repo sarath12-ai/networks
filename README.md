@@ -15,7 +15,7 @@
 - Ansible installed on your local machine
 - Git
 
-Step 1: Clone the Repository
+Step 1: Clone the repo
 ```bash
 git clone https://github.com/your-repo/Automated-Deployment-Project.git
 cd Automated-Deployment-Project
