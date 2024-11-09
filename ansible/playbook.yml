@@ -1,0 +1,38 @@
+---
+- hosts: webserver
+  become: yes
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+      tags: update
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+      tags: docker
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: true
+      tags: docker
+
+    - name: Pull Nginx Docker image
+      docker_image:
+        name: nginx
+        source: pull
+      tags: docker
+
+    - name: Run Docker container with Nginx
+      docker_container:
+        name: myapp
+        image: nginx:latest
+        state: started
+        ports:
+          - "80:80"
+        restart_policy: always
+      tags: deploy
