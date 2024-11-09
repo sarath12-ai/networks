@@ -1,0 +1,29 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: Build
+  steps:
+  - script: |
+      sudo apt update
+      sudo apt install -y docker.io
+    displayName: 'Install Docker'
+  
+  - task: Docker@2
+    inputs:
+      containerRegistry: '$(dockerRegistryServiceConnection)'
+      repository: 'myapp'
+      command: 'buildAndPush'
+      Dockerfile: '**/Dockerfile'
+      tags: |
+        $(Build.BuildId)
+  
+- job: Deploy
+  dependsOn: Build
+  steps:
+  - script: |
+      ansible-playbook -i inventory playbook.yml
+    displayName: 'Deploy with Ansible'
