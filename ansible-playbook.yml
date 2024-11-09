@@ -5,31 +5,28 @@
   hosts: all
   become: true
   tasks:
-    # Install Docker
+    # Update apt packages
     - name: Update apt packages
       ansible.builtin.apt:
         update_cache: yes
 
+    # Install Docker
     - name: Install Docker
       ansible.builtin.apt:
         name: docker.io
         state: present
 
+    # Start Docker service
     - name: Start Docker service
       ansible.builtin.service:
         name: docker
         state: started
         enabled: yes
 
-    # Ensure /tmp has correct permissions (optional, often not necessary)
-    - name: Ensure /tmp has the correct permissions
-      ansible.builtin.command:
-        cmd: chmod 1777 /tmp
-
     # Copy Dockerfile to VM
     - name: Copy Dockerfile to VM
       ansible.builtin.copy:
-        src: ./Dockerfile   # Adjust path to match your folder structure
+        src: ./Dockerfile  # Adjust path if necessary
         dest: /home/azureuser/Dockerfile
         owner: azureuser
         mode: '0644'
@@ -37,7 +34,7 @@
     # Copy application code to VM
     - name: Copy application code to VM
       ansible.builtin.copy:
-        src: ./html/index.html  # Adjust path as necessary
+        src: ./html/index.html  # Adjust path if necessary
         dest: /home/azureuser/index.html
         owner: azureuser
         mode: '0644'
