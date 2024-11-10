@@ -1,0 +1,50 @@
+---
+# ansible-playbook.yml
+
+- name: Set up Docker and deploy container on Azure VM
+  hosts: all
+  become: true
+  tasks:
+    # Update apt packages
+    - name: Update apt packages
+      ansible.builtin.apt:
+        update_cache: yes
+
+    # Install Docker
+    - name: Install Docker
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+
+    # Start Docker service
+    - name: Start Docker service
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # # Copy Dockerfile to VM
+    # - name: Copy Dockerfile to VM
+    #   ansible.builtin.copy:
+    #     src: ./Dockerfile  # Adjust path if necessary
+    #     dest: /home/azureuser/Dockerfile
+    #     owner: azureuser
+    #     mode: '0644'
+
+    # # Copy application code to VM
+    # - name: Copy application code to VM
+    #   ansible.builtin.copy:
+    #     src: ./html/index.html  # Adjust path if necessary
+    #     dest: /home/azureuser/index.html
+    #     owner: azureuser
+    #     mode: '0644'
+
+    # # Build Docker image
+    # - name: Build Docker image
+    #   ansible.builtin.command:
+    #     cmd: docker build -t myapp:latest /home/azureuser
+
+    # # Run Docker container
+    # - name: Run Docker container
+    #   ansible.builtin.command:
+    #     cmd: docker run -d -p 80:80 myapp:latest

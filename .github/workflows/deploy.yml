@@ -24,10 +24,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Azure Login
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       # Set up Terraform
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
@@ -50,15 +52,17 @@ jobs:
         run: terraform apply -auto-approve tfplan
         working-directory: terraform
 
-      - name: Retrieve Public IP from Azure
-        id: get_public_ip
+      # Retrieve VM Details from Terraform Output
+      - name: Retrieve Terraform Outputs
+        id: terraform_output
         run: |
-         PUBLIC_IP=$(az network public-ip show \
-            --resource-group Network-RG1 \
-            --name Network-PIP \
-            --query ipAddress -o tsv)
-          vm_name=$(terraform output -raw vm_name)  
+          PUBLIC_IP=$(terraform output -raw public_ip_address)
+          PRIVATE_KEY=$(terraform output -raw private_key)
           echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV
+          echo "${PRIVATE_KEY}" > private_key.pem
+          chmod 600 private_key.pem
+
+        working-directory: terraform
 
       # Set up Ansible
       - name: Install Ansible
@@ -68,35 +72,40 @@ jobs:
       - name: Configure Ansible Inventory
         run: |
           echo "[azure_vm]" > inventory
-          echo "${{ env.public_ip }} ansible_user=azureuser ansible_password=${{ secrets.ADMIN_PASSWORD }} ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> inventory
+          echo "${{ env.public_ip }} ansible_user=azureuser ansible_ssh_private_key_file=private_key.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> inventory
+
+      # Run Ansible Playbook
+      - name: Run Ansible Playbook
+        run: ansible-playbook -i inventory setup.yml
+
       # - name: Ensure Python 3 is Installed on VM
+      # #   uses: docker://cytopia/ansible:latest
+      # #   with:
+      # #     args: >
+      # #         ansible-playbook -i inventory -c paramiko -e "ansible_user=azureuser"
+      # #         -e "ansible_password=${{ secrets.AZURE_VM_PASSWORD }}" 
+      # #         -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
+      # #         -e "ansible_python_interpreter=/usr/bin/python3"
+      # #         - <<'EOF'
+      # #         ---
+      # #         - name: Ensure Python 3 is installed
+      # #           hosts: azure_vm
+      # #           gather_facts: false
+      # #           tasks:
+      # #             - name: Install Python 3 on the VM using raw command
+      # #               raw: |
+      # #                 sudo apt-get update -y
+      # #                 sudo apt-get install -y python3 python3-apt
+      # #         EOF
+    
+      # - name: Run Ansible Playbook for Deployment
       #   uses: docker://cytopia/ansible:latest
       #   with:
-      #     args: >
-      #         ansible-playbook -i inventory -c paramiko -e "ansible_user=azureuser"
-      #         -e "ansible_password=${{ secrets.AZURE_VM_PASSWORD }}" 
-      #         -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
-      #         -e "ansible_python_interpreter=/usr/bin/python3"
-      #         - <<'EOF'
-      #         ---
-      #         - name: Ensure Python 3 is installed
-      #           hosts: azure_vm
-      #           gather_facts: false
-      #           tasks:
-      #             - name: Install Python 3 on the VM using raw command
-      #               raw: |
-      #                 sudo apt-get update -y
-      #                 sudo apt-get install -y python3 python3-apt
-      #         EOF
-    
-      - name: Run Ansible Playbook for Deployment
-        uses: docker://cytopia/ansible:latest
-        with:
-          args: |
-            /bin/sh -c "
-            apk update &&
-            apk add --no-cache sshpass &&
-            ansible-playbook -i inventory ansible-playbook.yml
-            "
+      #     args: |
+      #       /bin/sh -c "
+      #       apk update &&
+      #       apk add --no-cache sshpass &&
+      #       ansible-playbook -i inventory ansible-playbook.yml
+      #       "
 
 
