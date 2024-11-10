@@ -41,41 +41,41 @@ jobs:
         run: terraform init
         working-directory: terraform
       # Import existing resources if not in the state
-      # - name: Import Resource Group if not managed
-      #   run: |
-      #     terraform state show azurerm_resource_group.rg || \
-      #     terraform import azurerm_resource_group.rg /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg
-      #   working-directory: terraform
+      - name: Import Resource Group if not managed
+        run: |
+          terraform state show azurerm_resource_group.rg || \
+          terraform import azurerm_resource_group.rg /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg
+        working-directory: terraform
 
-      # - name: Import Virtual Network if not managed
-      #   run: |
-      #     terraform state show azurerm_virtual_network.vnet || \
-      #     terraform import azurerm_virtual_network.vnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vnet
-      #   working-directory: terraform
+      - name: Import Virtual Network if not managed
+        run: |
+          terraform state show azurerm_virtual_network.vnet || \
+          terraform import azurerm_virtual_network.vnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vnet
+        working-directory: terraform
 
-      # - name: Import Subnet if not managed
-      #   run: |
-      #     terraform state show azurerm_subnet.subnet || \
-      #     terraform import azurerm_subnet.subnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vnet/subnets/tf-linux-subnet
-      #   working-directory: terraform
+      - name: Import Subnet if not managed
+        run: |
+          terraform state show azurerm_subnet.subnet || \
+          terraform import azurerm_subnet.subnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vnet/subnets/tf-linux-subnet
+        working-directory: terraform
 
-      # - name: Import Public IP if not managed
-      #   run: |
-      #     terraform state show azurerm_public_ip.public_ip || \
-      #     terraform import azurerm_public_ip.public_ip /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/publicIPAddresses/tf-linux-public-ip
-      #   working-directory: terraform
+      - name: Import Public IP if not managed
+        run: |
+          terraform state show azurerm_public_ip.public_ip || \
+          terraform import azurerm_public_ip.public_ip /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/publicIPAddresses/tf-linux-public-ip
+        working-directory: terraform
 
-      # - name: Import Network Interface if not managed
-      #   run: |
-      #     terraform state show azurerm_network_interface.nic || \
-      #     terraform import azurerm_network_interface.nic /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/networkInterfaces/tf-linux-nic
-      #   working-directory: terraform
+      - name: Import Network Interface if not managed
+        run: |
+          terraform state show azurerm_network_interface.nic || \
+          terraform import azurerm_network_interface.nic /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/networkInterfaces/tf-linux-nic
+        working-directory: terraform
 
-      # - name: Import Virtual Machine if not managed
-      #   run: |
-      #     terraform state show azurerm_linux_virtual_machine.linux_vm || \
-      #     terraform import azurerm_linux_virtual_machine.linux_vm /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Compute/virtualMachines/tf-linux-vm
-      #   working-directory: terraform
+      - name: Import Virtual Machine if not managed
+        run: |
+          terraform state show azurerm_linux_virtual_machine.linux_vm || \
+          terraform import azurerm_linux_virtual_machine.linux_vm /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Compute/virtualMachines/tf-linux-vm
+        working-directory: terraform
       # Terraform Plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan
