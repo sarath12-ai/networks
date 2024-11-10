@@ -40,53 +40,53 @@ jobs:
       - name: Initialize Terraform
         run: terraform init
         working-directory: terraform
-      # # Import existing resources if not in the state
-      # - name: Import Resource Group if not managed
-      #   run: |
-      #     terraform state show azurerm_resource_group.rg || \
-      #     terraform import azurerm_resource_group.rg /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg
-      #   working-directory: terraform
+      # Import existing resources if not in the state
+      - name: Import Resource Group if not managed
+        run: |
+          terraform state show azurerm_resource_group.rg || \
+          terraform import azurerm_resource_group.rg /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg
+        working-directory: terraform
 
-      # - name: Import Virtual Network if not managed
-      #   run: |
-      #     terraform state show azurerm_virtual_network.vnet || \
-      #     terraform import azurerm_virtual_network.vnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vm-vnet
-      #   working-directory: terraform
+      - name: Import Virtual Network if not managed
+        run: |
+          terraform state show azurerm_virtual_network.vnet || \
+          terraform import azurerm_virtual_network.vnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vm-vnet
+        working-directory: terraform
 
-      # - name: Import Subnet if not managed
-      #   run: |
-      #     terraform state show azurerm_subnet.subnet || \
-      #     terraform import azurerm_subnet.subnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vm-vnet/subnets/tf-linux-vm-subnet
-      #   working-directory: terraform
+      - name: Import Subnet if not managed
+        run: |
+          terraform state show azurerm_subnet.subnet || \
+          terraform import azurerm_subnet.subnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vm-vnet/subnets/tf-linux-vm-subnet
+        working-directory: terraform
 
-      # - name: Import Public IP if not managed
-      #   run: |
-      #     terraform state show azurerm_public_ip.public_ip || \
-      #     terraform import azurerm_public_ip.public_ip /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/publicIPAddresses/tf-linux-vm-public-ip
-      #   working-directory: terraform
+      - name: Import Public IP if not managed
+        run: |
+          terraform state show azurerm_public_ip.public_ip || \
+          terraform import azurerm_public_ip.public_ip /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/publicIPAddresses/tf-linux-vm-public-ip
+        working-directory: terraform
 
-      # - name: Import Network Interface if not managed
-      #   run: |
-      #     terraform state show azurerm_network_interface.nic || \
-      #     terraform import azurerm_network_interface.nic /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/networkInterfaces/tf-linux-vm-nic
-      #   working-directory: terraform
+      - name: Import Network Interface if not managed
+        run: |
+          terraform state show azurerm_network_interface.nic || \
+          terraform import azurerm_network_interface.nic /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/networkInterfaces/tf-linux-vm-nic
+        working-directory: terraform
 
-      # - name: Import Virtual Machine if not managed
-      #   run: |
-      #     terraform state show azurerm_linux_virtual_machine.linux_vm || \
-      #     terraform import azurerm_linux_virtual_machine.linux_vm /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Compute/virtualMachines/tf-linux-vm
-      #   working-directory: terraform
-      # - name: Import NSG if not managed
-      #   run: |
-      #     terraform state show azurerm_network_security_group.nsg || \
-      #     terraform import azurerm_network_security_group.nsg /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/networkSecurityGroups/Network-NSG
-      #   working-directory: terraform
-      # # Import existing Network Security Group Association if not managed
-      # - name: Import Subnet NSG Association if not managed
-      #   run: |
-      #     terraform state show azurerm_subnet_network_security_group_association.nsg_association || \
-      #     terraform import azurerm_subnet_network_security_group_association.nsg_association /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vm-vnet/subnets/tf-linux-vm-subnet
-      #   working-directory: terraform
+      - name: Import Virtual Machine if not managed
+        run: |
+          terraform state show azurerm_linux_virtual_machine.linux_vm || \
+          terraform import azurerm_linux_virtual_machine.linux_vm /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Compute/virtualMachines/tf-linux-vm
+        working-directory: terraform
+      - name: Import NSG if not managed
+        run: |
+          terraform state show azurerm_network_security_group.nsg || \
+          terraform import azurerm_network_security_group.nsg /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/networkSecurityGroups/Network-NSG
+        working-directory: terraform
+      # Import existing Network Security Group Association if not managed
+      - name: Import Subnet NSG Association if not managed
+        run: |
+          terraform state show azurerm_subnet_network_security_group_association.nsg_association || \
+          terraform import azurerm_subnet_network_security_group_association.nsg_association /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vm-vnet/subnets/tf-linux-vm-subnet
+        working-directory: terraform
     
       # Terraform Plan
       - name: Terraform Plan
@@ -145,7 +145,7 @@ jobs:
       - name: Test SSH Connection
         run: |
           echo "Testing SSH connection to VM..."
-          ssh -i private_key.pem -o StrictHostKeyChecking=no -vvv azureuser@${{ env.public_ip }} echo "SSH connection successful"
+          ssh -i private_key.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
         shell: bash
 
       # Install Ansible
@@ -157,7 +157,7 @@ jobs:
         run: |
           echo "Configuring Ansible inventory file..."
           echo "[azure_vm]" > inventory
-          echo "${{ env.public_ip }} ansible_user=azureuser ansible_ssh_private_key_file=private_key.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> inventory
+          echo "40.85.153.118 ansible_user=azureuser ansible_ssh_private_key_file=private_key.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> inventory
           
           if [[ ! -f "inventory" ]]; then
             echo "Error: Ansible inventory file was not created."
