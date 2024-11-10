@@ -140,7 +140,12 @@ jobs:
           fi
 
           echo "Private key file created and permissions set."
-
+      
+      # Convert private key to OpenSSH format
+      - name: Convert Private Key to OpenSSH Format
+        run: |
+          ssh-keygen -p -m PEM -f private_key.pem
+          ssh-keygen -lf private_key.pem
       # Test SSH Connection (Add verbosity for troubleshooting)
       - name: Test SSH Connection
         run: |
