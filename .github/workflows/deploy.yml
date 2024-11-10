@@ -117,11 +117,11 @@ jobs:
           chmod 600 private_key.pem
 
       # Test SSH Connection (Add verbosity for troubleshooting)
-      # - name: Test SSH Connection
-      #   run: |
-      #     echo "Testing SSH connection to VM..."
-      #     ssh -i private_key.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
-      #   shell: bash
+      - name: Test SSH Connection
+        run: |
+          echo "Testing SSH connection to VM..."
+          ssh -i private_key.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
+        shell: bash
 
       # Install Ansible
       - name: Install Ansible
