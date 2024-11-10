@@ -99,12 +99,10 @@ jobs:
         run: terraform apply -auto-approve tfplan
         working-directory: terraform
 
-      # Retrieve VM Details from Terraform Output
+      # Retrieve Terraform Outputs
       - name: Retrieve Terraform Outputs
         id: terraform_output
         run: |
-          echo "Retrieving VM details from Terraform output..."
-
           PUBLIC_IP=$(az network public-ip show \
             --resource-group tf-linux-rg \
             --name tf-linux-vm-public-ip \
@@ -118,6 +116,7 @@ jobs:
           echo "Public IP retrieved: $PUBLIC_IP"
           echo "public_ip=$PUBLIC_IP" >> $GITHUB_ENV
           
+          # Retrieve the private key from Terraform output (Base64 encoded)
           PRIVATE_KEY=$(terraform output -raw private_key)
           
           if [[ -z "$PRIVATE_KEY" ]]; then
@@ -132,7 +131,7 @@ jobs:
       - name: Create Private Key File
         run: |
           echo "Creating private key file from Terraform output..."
-          echo "${PRIVATE_KEY}" > private_key.pem
+          echo "${PRIVATE_KEY}" | base64 -d > private_key.pem
           chmod 600 private_key.pem
           
           if [[ ! -f "private_key.pem" ]]; then
@@ -142,11 +141,11 @@ jobs:
 
           echo "Private key file created and permissions set."
 
-      # Verify the SSH connection
+      # Test SSH Connection (Add verbosity for troubleshooting)
       - name: Test SSH Connection
         run: |
           echo "Testing SSH connection to VM..."
-          ssh -i private_key.pem -o StrictHostKeyChecking=no azureuser@${{ env.public_ip }} echo "SSH connection successful"
+          ssh -i private_key.pem -o StrictHostKeyChecking=no -vvv azureuser@${{ env.public_ip }} echo "SSH connection successful"
         shell: bash
 
       # Install Ansible
