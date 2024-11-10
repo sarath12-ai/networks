@@ -56,7 +56,7 @@ jobs:
       - name: Import Subnet if not managed
         run: |
           terraform state show azurerm_subnet.subnet || \
-          terraform import azurerm_subnet.subnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vnet/subnets/tf-linux-vm-subnet
+          terraform import azurerm_subnet.subnet /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/tf-linux-rg/providers/Microsoft.Network/virtualNetworks/tf-linux-vm-vnet/subnets/tf-linux-vm-subnet
         working-directory: terraform
 
       - name: Import Public IP if not managed
