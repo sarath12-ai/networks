@@ -107,56 +107,21 @@ jobs:
             --resource-group tf-linux-rg \
             --name tf-linux-vm-public-ip \
             --query ipAddress -o tsv)
-          
-          if [[ -z "$PUBLIC_IP" ]]; then
-            echo "Error: Failed to retrieve PUBLIC_IP."
-            exit 1
-          fi
-
-          echo "Public IP retrieved: $PUBLIC_IP"
-          echo "public_ip=$PUBLIC_IP" >> $GITHUB_ENV
-          
-          # Retrieve the private key from Terraform output (Base64 encoded)
-          PRIVATE_KEY=$(terraform output -raw private_key)
-          
-          if [[ -z "$PRIVATE_KEY" ]]; then
-            echo "Error: Failed to retrieve PRIVATE_KEY."
-            exit 1
-          fi
-          
-          echo "Private key successfully retrieved from Terraform output."
+          echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV  
         working-directory: terraform
 
-      # Create Private Key File
-      - name: Create Private Key File
+      # Decode the private key and save it to a file
+      - name: Decode and save SSH private key
         run: |
-          echo "Creating private key file from Terraform output..."
-          echo "${PRIVATE_KEY}" | base64 -d > private_key.pem
+          echo "${{ secrets.AZURE_PRIVATE_KEY }}" | base64 -d > private_key.pem
           chmod 600 private_key.pem
-          
-          if [[ ! -f "private_key.pem" ]]; then
-            echo "Error: private_key.pem was not created."
-            exit 1
-          fi
 
-          echo "Private key file created and permissions set."
-      # Display Private Key format
-      - name: Display Private Key Format
-        run: |
-            # Display the first few lines of the private key to check its format
-            head -n 5 private_key.pem
-        
-      # Convert private key to OpenSSH format
-      - name: Convert Private Key to OpenSSH Format
-        run: |
-          ssh-keygen -p -m PEM -f private_key.pem
-          ssh-keygen -lf private_key.pem
       # Test SSH Connection (Add verbosity for troubleshooting)
-      - name: Test SSH Connection
-        run: |
-          echo "Testing SSH connection to VM..."
-          ssh -i private_key.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
-        shell: bash
+      # - name: Test SSH Connection
+      #   run: |
+      #     echo "Testing SSH connection to VM..."
+      #     ssh -i private_key.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
+      #   shell: bash
 
       # Install Ansible
       - name: Install Ansible
