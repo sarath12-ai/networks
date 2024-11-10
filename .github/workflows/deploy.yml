@@ -92,7 +92,7 @@ jobs:
         id: terraform_output
         run: |
           PUBLIC_IP=$(az network public-ip show \
-            --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+            --resource-group tf-linux-rg \
             --name tf-linux-vm-public-ip \
             --query ipAddress -o tsv)
           PRIVATE_KEY=$(terraform output -raw private_key)
