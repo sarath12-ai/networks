@@ -140,7 +140,12 @@ jobs:
           fi
 
           echo "Private key file created and permissions set."
-      
+      # Display Private Key format
+      - name: Display Private Key Format
+        run: |
+            # Display the first few lines of the private key to check its format
+            head -n 5 private_key.pem
+        
       # Convert private key to OpenSSH format
       - name: Convert Private Key to OpenSSH Format
         run: |
