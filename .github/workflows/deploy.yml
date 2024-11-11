@@ -144,6 +144,7 @@ jobs:
       # Run Ansible Playbook
       - name: Run Ansible Playbook
         run: |
+          chmod 600 newprivatekeypair.pem
           echo "Running Ansible playbook..."
           ansible-playbook -i inventory.ini setup.yml --limit all
 
