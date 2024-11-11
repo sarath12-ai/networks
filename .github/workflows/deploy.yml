@@ -130,6 +130,7 @@ jobs:
         run: |
           sudo apt-get install -y ansible
           python3 -m pip install --upgrade ansible
+          sudo apt-get update
           sudo apt-get install zlib
 
       # Configure Ansible Inventory
