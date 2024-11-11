@@ -131,6 +131,7 @@ jobs:
         run: |
           sudo apt-get install -y ansible
           sudo python3 -m pip install --upgrade ansible
+          pip show ansible
           sudo apt-get update
           sudo apt-get install zlib1g
 
@@ -154,7 +155,7 @@ jobs:
           chmod 600 newprivatekeypair.pem
           python3 --version
           echo "Running Ansible playbook..."
-          ansible all -m command -a "echo hello" -i inventory.ini
+          ansible all -m command -a "echo hello" -i inventory.ini -vvv
           ansible-playbook -i inventory.ini setup.yml --limit all -vvv
 
       # - name: Ensure Python 3 is Installed on VM
