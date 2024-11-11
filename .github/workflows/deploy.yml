@@ -119,7 +119,7 @@ jobs:
       # # Test SSH Connection (Add verbosity for troubleshooting)
       - name: Test SSH Connection
         run: |
-          chmod 600
+          chmod 600 newprivatekeypair.pem
           echo "Testing SSH connection to VM..."
           ls -l
           ssh -i newprivatekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
