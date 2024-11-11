@@ -155,9 +155,9 @@ jobs:
           chmod 600 newprivatekeypair.pem
           python3 --version
           echo "Running Ansible playbook..."
-          ansible all -m command -a "echo hello" -i inventory.ini -vvv
           ansible-playbook -i inventory.ini setup.yml --limit all -vvv
-
+          
+      # ansible all -m command -a "echo hello" -i inventory.ini -vvv
       # - name: Ensure Python 3 is Installed on VM
       # #   uses: docker://cytopia/ansible:latest
       # #   with:
