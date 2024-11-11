@@ -119,6 +119,7 @@ jobs:
       # # Test SSH Connection (Add verbosity for troubleshooting)
       - name: Test SSH Connection
         run: |
+          chmod 600
           echo "Testing SSH connection to VM..."
           ls -l
           ssh -i newprivatekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
@@ -145,7 +146,7 @@ jobs:
       # Run Ansible Playbook
       - name: Run Ansible Playbook
         run: |
-          chmod 0600 newprivatekeypair.pem
+          chmod 600 newprivatekeypair.pem
           python3 --version
           echo "Running Ansible playbook..."
           ansible-playbook -i inventory.ini setup.yml --limit all
