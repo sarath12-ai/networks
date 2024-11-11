@@ -121,7 +121,8 @@ jobs:
         run: |
           chmod 600 newprivatekeypair.pem
           echo "Testing SSH connection to VM..."
-          ls -l
+          pwd
+          ls -l 
           ssh -i newprivatekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
         shell: bash
 
