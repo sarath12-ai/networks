@@ -127,7 +127,8 @@ jobs:
 
       # Install Ansible
       - name: Install Ansible
-        run: sudo apt-get install -y ansible
+        run: |
+          sudo apt-get install -y ansible
           python3 -m pip install --upgrade ansible
 
       # Configure Ansible Inventory
