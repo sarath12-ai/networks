@@ -113,7 +113,7 @@ jobs:
       # Decode the private key and save it to a file
       # - name: Decode and save SSH private key
       #   run: |
-      #     echo "${{ secrets.AZURE_PRIVATE_KEY }}" > private_key.pem
+      #     echo "${{ secrets.AZURE_PRIVATE_KEY }}" >> private_key.pem
       #     chmod 600 private_key.pem
 
       # # Test SSH Connection (Add verbosity for troubleshooting)
@@ -145,7 +145,7 @@ jobs:
       - name: Run Ansible Playbook
         run: |
           echo "Running Ansible playbook..."
-          ansible-playbook -i inventory setup.yml
+          ansible-playbook -i 40.85.153.118 setup.yml
 
       # - name: Ensure Python 3 is Installed on VM
       # #   uses: docker://cytopia/ansible:latest
