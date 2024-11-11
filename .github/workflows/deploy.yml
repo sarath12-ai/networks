@@ -130,7 +130,7 @@ jobs:
       - name: Install Ansible
         run: |
           sudo apt-get install -y ansible
-          python3 -m pip install --upgrade ansible
+          sudo python3 -m pip install --upgrade ansible
           sudo apt-get update
           sudo apt-get install zlib1g
 
@@ -154,7 +154,8 @@ jobs:
           chmod 600 newprivatekeypair.pem
           python3 --version
           echo "Running Ansible playbook..."
-          ansible-playbook -i inventory.ini setup.yml --limit all
+          ansible all -m ping -i inventory.ini
+          ansible-playbook -i inventory.ini setup.yml --limit all -vvv
 
       # - name: Ensure Python 3 is Installed on VM
       # #   uses: docker://cytopia/ansible:latest
