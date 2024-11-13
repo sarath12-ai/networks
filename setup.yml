@@ -36,14 +36,14 @@
     - name: Copy application code to VM
       ansible.builtin.copy:
         src: ./html/index.html  # Adjust path if necessary
-        dest: /home/azureuser/html/index.html
+        dest: /home/azureuser/index.html
         owner: azureuser
         mode: '0644'
 
     # # Build Docker image
     - name: Build Docker image
       ansible.builtin.command:
-        cmd: docker build -t myapp:latest /home/azureuser
+        cmd: docker build -t myapp:latest /home/azureuser/index.html
 
     # # Run Docker container
     - name: Run Docker container
