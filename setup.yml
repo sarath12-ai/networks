@@ -36,7 +36,7 @@
     - name: Copy application code to VM
       ansible.builtin.copy:
         src: ./html/index.html  # Adjust path if necessary
-        dest: /home/azureuser/index.html
+        dest: /home/azureuser/html/index.html
         owner: azureuser
         mode: '0644'
 
