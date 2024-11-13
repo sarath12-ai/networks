@@ -119,7 +119,7 @@ jobs:
       # # Test SSH Connection (Add verbosity for troubleshooting)
       - name: Test SSH Connection
         run: |
-          chmod 600 newprivatekeypair.pem
+          chmod 600 azurekeypair.pem
           echo "Testing SSH connection to VM..."
           pwd
           ls -l 
