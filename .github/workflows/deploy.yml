@@ -117,23 +117,63 @@ jobs:
       #     chmod 600 private_key.pem
 
       # # Test SSH Connection (Add verbosity for troubleshooting)
-      - name: Test SSH Connection
+      # - name: Test SSH Connection
+      #   run: |
+      #     chmod 600 azurekeypair.pem
+      #     echo "Testing SSH connection to VM..."
+      #     pwd
+      #     ls -l 
+      #     ssh -i azurekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@104.42.130.100 echo "SSH connection successful"
+      #   shell: bash
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
         run: |
+          python -m pip install --upgrade pip
+          pip install ansible==6.3.0  # Using a specific older version for better compatibility
+          sudo apt-get update
+          sudo apt-get install -y openssh-client
+
+      - name: Setup SSH
+        run: |
+          eval $(ssh-agent -s)
           chmod 600 azurekeypair.pem
-          echo "Testing SSH connection to VM..."
-          pwd
-          ls -l 
-          ssh -i azurekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@104.42.130.100 echo "SSH connection successful"
-        shell: bash
+          ssh-add azurekeypair.pem
+          mkdir -p ~/.ssh
+          echo "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null\n\tServerAliveInterval 60\n\tServerAliveCountMax 3" > ~/.ssh/config
+
+      - name: Verify SSH Connection
+        run: |
+          ssh -i azurekeypair.pem -o StrictHostKeyChecking=no azureuser@104.42.130.100 'echo "Connection successful"'
+
+      - name: Install Python on Remote
+        run: |
+          ssh -i azurekeypair.pem azureuser@104.42.130.100 '
+          if ! command -v python3 &> /dev/null; then
+              sudo apt-get update
+              sudo apt-get install -y python3 python3-pip
+          fi'
+
+      - name: Run Ansible
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+          ANSIBLE_SSH_RETRIES: "5"
+          ANSIBLE_RETRY_FILES_ENABLED: "True"
+        run: |
+          ansible-playbook -i inventory.ini setup.yml -vvv
 
       # Install Ansible
-      - name: Install Ansible
-        run: |
-          sudo apt-get install -y ansible
-          sudo python3 -m pip install --upgrade ansible
-          pip show ansible
-          sudo apt-get update
-          sudo apt-get install zlib1g
+      # - name: Install Ansible
+      #   run: |
+      #     sudo apt-get install -y ansible
+      #     sudo python3 -m pip install --upgrade ansible
+      #     pip show ansible
+      #     sudo apt-get update
+      #     sudo apt-get install zlib1g
 
       # Configure Ansible Inventory
       # - name: Configure Ansible Inventory
@@ -150,13 +190,13 @@ jobs:
       #     echo "Ansible inventory file configured."
 
       # Run Ansible Playbook
-      - name: Run Ansible Playbook
-        run: |
-          chmod 600 azurekeypair.pem
-          python3 --version
-          ansible --version
-          echo "Running Ansible playbook..."
-          ansible-playbook -i inventory.ini setup.yml -u azureuser@104.42.130.100 --private-key=azurekeypair.pem --limit all -vvv
+      # - name: Run Ansible Playbook
+      #   run: |
+      #     chmod 600 azurekeypair.pem
+      #     python3 --version
+      #     ansible --version
+      #     echo "Running Ansible playbook..."
+      #     ansible-playbook -i inventory.ini setup.yml -u azureuser@104.42.130.100 --private-key=azurekeypair.pem --limit all -vvv
       
       # - name: Ensure Python 3 is Installed on VM
       # #   uses: docker://cytopia/ansible:latest
