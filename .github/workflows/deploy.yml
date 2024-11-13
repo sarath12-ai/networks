@@ -150,13 +150,14 @@ jobs:
       #     echo "Ansible inventory file configured."
 
       # Run Ansible Playbook
-      # - name: Run Ansible Playbook
-      #   run: |
-      #     chmod 600 azurekeypair.pem
-      #     python3 --version
-      #     echo "Running Ansible playbook..."
-      #     ansible-playbook -i inventory.ini setup.yml -u azureuser@104.42.130.100 --private-key=azurekeypair.pem --limit all -vvv
-      # ansible all -m command -a "echo hello" -i inventory.ini -vvv
+      - name: Run Ansible Playbook
+        run: |
+          chmod 600 azurekeypair.pem
+          python3 --version
+          ansible --version
+          echo "Running Ansible playbook..."
+          ansible-playbook -i inventory.ini setup.yml -u azureuser@104.42.130.100 --private-key=azurekeypair.pem --limit all -vvv
+      
       # - name: Ensure Python 3 is Installed on VM
       # #   uses: docker://cytopia/ansible:latest
       # #   with:
