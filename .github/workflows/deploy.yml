@@ -31,15 +31,15 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # # Set up Terraform
-      # - name: Set up Terraform
-      #   uses: hashicorp/setup-terraform@v2
-      #   with:
-      #     terraform_version: 1.3.0
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.3.0
 
       # # Initialize Terraform
-      # - name: Initialize Terraform
-      #   run: terraform init
-      #   working-directory: terraform
+      - name: Initialize Terraform
+        run: terraform init
+        working-directory: terraform
       # # Import existing resources if not in the state
       # - name: Import Resource Group if not managed
       #   run: |
@@ -89,26 +89,26 @@ jobs:
       #   working-directory: terraform
     
       # # Terraform Plan
-      # - name: Terraform Plan
-      #   run: terraform plan -out=tfplan
-      #   working-directory: terraform
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: terraform
 
       # # Terraform Apply
-      # - name: Terraform Apply
-      #   if: github.ref == 'refs/heads/main'
-      #   run: terraform apply -auto-approve tfplan
-      #   working-directory: terraform
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+        working-directory: terraform
 
       # # Retrieve Terraform Outputs
-      # - name: Retrieve Terraform Outputs
-      #   id: terraform_output
-      #   run: |
-      #     PUBLIC_IP=$(az network public-ip show \
-      #       --resource-group tf-linux-rg \
-      #       --name tf-linux-vm-public-ip \
-      #       --query ipAddress -o tsv)
-      #     echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV  
-      #   working-directory: terraform
+      - name: Retrieve Terraform Outputs
+        id: terraform_output
+        run: |
+          PUBLIC_IP=$(az network public-ip show \
+            --resource-group tf-linux-rg \
+            --name tf-linux-vm-public-ip \
+            --query ipAddress -o tsv)
+          echo "public_ip=${PUBLIC_IP}" >> $GITHUB_ENV  
+        working-directory: terraform
 
       # Decode the private key and save it to a file
       # - name: Decode and save SSH private key
@@ -117,23 +117,23 @@ jobs:
       #     chmod 600 private_key.pem
 
       # # Test SSH Connection (Add verbosity for troubleshooting)
-      - name: Test SSH Connection
-        run: |
-          chmod 600 newprivatekeypair.pem
-          echo "Testing SSH connection to VM..."
-          pwd
-          ls -l 
-          ssh -i newprivatekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
-        shell: bash
+      # - name: Test SSH Connection
+      #   run: |
+      #     chmod 600 newprivatekeypair.pem
+      #     echo "Testing SSH connection to VM..."
+      #     pwd
+      #     ls -l 
+      #     ssh -i newprivatekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@40.85.153.118 echo "SSH connection successful"
+      #   shell: bash
 
       # Install Ansible
-      - name: Install Ansible
-        run: |
-          sudo apt-get install -y ansible
-          sudo python3 -m pip install --upgrade ansible
-          pip show ansible
-          sudo apt-get update
-          sudo apt-get install zlib1g
+      # - name: Install Ansible
+      #   run: |
+      #     sudo apt-get install -y ansible
+      #     sudo python3 -m pip install --upgrade ansible
+      #     pip show ansible
+      #     sudo apt-get update
+      #     sudo apt-get install zlib1g
 
       # Configure Ansible Inventory
       # - name: Configure Ansible Inventory
@@ -150,12 +150,12 @@ jobs:
       #     echo "Ansible inventory file configured."
 
       # Run Ansible Playbook
-      - name: Run Ansible Playbook
-        run: |
-          chmod 600 newprivatekeypair.pem
-          python3 --version
-          echo "Running Ansible playbook..."
-          ansible-playbook -i inventory.ini setup.yml -u azureuser@40.85.153.118 --private-key=newprivatekeypair.pem --limit all -vvv
+      # - name: Run Ansible Playbook
+      #   run: |
+      #     chmod 600 newprivatekeypair.pem
+      #     python3 --version
+      #     echo "Running Ansible playbook..."
+      #     ansible-playbook -i inventory.ini setup.yml -u azureuser@40.85.153.118 --private-key=newprivatekeypair.pem --limit all -vvv
       # ansible all -m command -a "echo hello" -i inventory.ini -vvv
       # - name: Ensure Python 3 is Installed on VM
       # #   uses: docker://cytopia/ansible:latest
