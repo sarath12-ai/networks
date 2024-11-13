@@ -33,12 +33,12 @@
         mode: '0644'
 
     # # Copy application code to VM
-    # - name: Copy application code to VM
-    #   ansible.builtin.copy:
-    #     src: ./html/index.html  # Adjust path if necessary
-    #     dest: /home/azureuser/index.html
-    #     owner: azureuser
-    #     mode: '0644'
+    - name: Copy application code to VM
+      ansible.builtin.copy:
+        src: ./html  # Adjust path if necessary
+        dest: /home/azureuser/
+        owner: azureuser
+        mode: '0644'
 
     # # Build Docker image
     - name: Build Docker image
