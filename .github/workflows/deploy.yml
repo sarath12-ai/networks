@@ -123,7 +123,7 @@ jobs:
           echo "Testing SSH connection to VM..."
           pwd
           ls -l 
-          ssh -i newprivatekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@104.42.130.100 echo "SSH connection successful"
+          ssh -i azurekeypair.pem -o StrictHostKeyChecking=no -vvv azureuser@104.42.130.100 echo "SSH connection successful"
         shell: bash
 
       # Install Ansible
