@@ -164,6 +164,7 @@ jobs:
           ANSIBLE_SSH_RETRIES: "5"
           ANSIBLE_RETRY_FILES_ENABLED: "True"
         run: |
+          chmod 600 azurekeypair.pem
           ansible-playbook -i inventory.ini playbook.yml -vvv
         working-directory: ansible
 
