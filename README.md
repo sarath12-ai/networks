@@ -12,8 +12,6 @@ Terraform and Ansible are powerful tools that can work synergistically to provis
 
 ## Repository Folder Structure
 
-## Repository Folder Structure
-
 ```plaintext
 .
 ├── terraform/         # Contains Terraform code for provisioning Azure resources
