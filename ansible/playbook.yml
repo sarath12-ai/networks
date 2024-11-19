@@ -43,9 +43,9 @@
     # # Build Docker image
     - name: Build Docker image
       ansible.builtin.command:
-        cmd: docker build -t myapp1:latest /home/azureuser/
+        cmd: docker build -t basicapp:latest /home/azureuser/
 
     # # Run Docker container
     - name: Run Docker container
       ansible.builtin.command:
-        cmd: docker run -d -p 8082:80 myapp1:latest
+        cmd: docker run -d -p 8083:80 basicapp:latest

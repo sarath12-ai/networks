@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Copy HTML application files to the default Nginx HTML folder
-COPY app /usr/share/nginx/app
+COPY app /usr/share/nginx/html
 
 # Expose port 80 to make the server accessible
 EXPOSE 80
