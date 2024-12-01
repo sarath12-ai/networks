@@ -1,52 +1,60 @@
-name: Deploy HTML App with Terraform, Ansible, and Docker
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
   deploy:
-    name: Deploy with Terraform and Ansible
     runs-on: ubuntu-latest
-
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ADMIN_USERNAME: "azureuser"
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
     steps:
-      # Checkout the repository
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      # Azure Login
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-# from here to vm deploy steps--------------------------
-      # Set up Terraform
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.3.0
+          terraform_version: 1.0.0
 
-      # Initialize Terraform
       - name: Initialize Terraform
-        run: terraform init
         working-directory: terraform
+        run: terraform init
 
-      #  # Terraform Plan
-      # - name: Terraform Plan
-      #   run: terraform plan -out=tfplan
-      #   working-directory: terraform
+      - name: Apply Terraform to provision infrastructure
+        working-directory: terraform
+        run: terraform apply -auto-approve -var="admin_username=${{ env.ADMIN_USERNAME }}" -var="admin_password=${{ env.ADMIN_PASSWORD }}"
 
-      # # Terraform Apply
-      # - name: Terraform Apply
-      #   if: github.ref == 'refs/heads/main'
-      #   run: terraform apply -auto-approve tfplan
-      #   working-directory: terraform
+      - name: Retrieve output variables from Terraform
+        id: get_ip
+        working-directory: terraform
+        run: |
+          echo "::set-output name=public_ip::$(terraform output -raw public_ip)"
+          echo "::set-output name=acr_login_server::$(terraform output -raw acr_login_server)"
+          echo "::set-output name=acr_admin_username::$(terraform output -raw acr_admin_username)"
+          echo "::set-output name=acr_admin_password::$(terraform output -raw acr_admin_password)"
+
+      - name: Log in to Azure Container Registry
+        run: |
+          echo ${{ steps.get_ip.outputs.acr_admin_password }} | docker login ${{ steps.get_ip.outputs.acr_login_server }} -u ${{ steps.get_ip.outputs.acr_admin_username }} --password-stdin
+
+      - name: Build Docker image
+        working-directory: app
+        run: |
+          docker build -t flask_app:${{ github.sha }} .
+          docker tag flask_app:${{ github.sha }} ${{ steps.get_ip.outputs.acr_login_server }}/flask_app:${{ github.sha }}
+
+      - name: Push Docker image to ACR
+        working-directory: app
+        run: |
+          docker push ${{ steps.get_ip.outputs.acr_login_server }}/flask_app:${{ github.sha }}
+
+     
