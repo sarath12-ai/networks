@@ -52,44 +52,44 @@ jobs:
         run: terraform apply -auto-approve tfplan
         working-directory: terraform
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
+      # - name: Set up Python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: "3.9"
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ansible==6.3.0  # Using a specific older version for better compatibility
-          sudo apt-get update
-          sudo apt-get install -y openssh-client
+      # - name: Install Dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install ansible==6.3.0  # Using a specific older version for better compatibility
+      #     sudo apt-get update
+      #     sudo apt-get install -y openssh-client
 
-      - name: Setup SSH
-        run: |
-          eval $(ssh-agent -s)
-          chmod 600 azurekeypair.pem
-          ssh-add azurekeypair.pem
-          mkdir -p ~/.ssh
-          echo "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null\n\tServerAliveInterval 60\n\tServerAliveCountMax 3" > ~/.ssh/config
+      # - name: Setup SSH
+      #   run: |
+      #     eval $(ssh-agent -s)
+      #     chmod 600 azurekeypair.pem
+      #     ssh-add azurekeypair.pem
+      #     mkdir -p ~/.ssh
+      #     echo "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile=/dev/null\n\tServerAliveInterval 60\n\tServerAliveCountMax 3" > ~/.ssh/config
 
-      - name: Verify SSH Connection
-        run: |
-          ssh -i azurekeypair.pem -o StrictHostKeyChecking=no azureuser@104.42.130.100 'echo "Connection successful"'
+      # - name: Verify SSH Connection
+      #   run: |
+      #     ssh -i azurekeypair.pem -o StrictHostKeyChecking=no azureuser@104.42.130.100 'echo "Connection successful"'
 
-      - name: Install Python on Remote
-        run: |
-          ssh -i azurekeypair.pem azureuser@104.42.130.100 '
-          if ! command -v python3 &> /dev/null; then
-              sudo apt-get update
-              sudo apt-get install -y python3 python3-pip
-          fi'
+      # - name: Install Python on Remote
+      #   run: |
+      #     ssh -i azurekeypair.pem azureuser@104.42.130.100 '
+      #     if ! command -v python3 &> /dev/null; then
+      #         sudo apt-get update
+      #         sudo apt-get install -y python3 python3-pip
+      #     fi'
 
-      - name: Run Ansible
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
-          ANSIBLE_SSH_RETRIES: "5"
-          ANSIBLE_RETRY_FILES_ENABLED: "True"
-        run: |
-          chmod 600 azurekeypair.pem
-          ansible-playbook -i inventory.ini playbook.yml -vvv
-        working-directory: ansible
+      # - name: Run Ansible
+      #   env:
+      #     ANSIBLE_HOST_KEY_CHECKING: "False"
+      #     ANSIBLE_SSH_RETRIES: "5"
+      #     ANSIBLE_RETRY_FILES_ENABLED: "True"
+      #   run: |
+      #     chmod 600 azurekeypair.pem
+      #     ansible-playbook -i inventory.ini playbook.yml -vvv
+      #   working-directory: ansible
