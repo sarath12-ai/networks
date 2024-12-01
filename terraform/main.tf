@@ -1,35 +1,11 @@
-# provider "azurerm" {
-#   features {}
-# }
 
-# terraform {
-#   backend "azurerm" {
-#     resource_group_name   = azurerm_resource_group.rg.name
-#     storage_account_name   = azurerm_storage_account.storage.name
-#     container_name         = var.storage_container_name
-#     key                    = "terraform.tfstate"
-#   }
-# }
-
-# resource "azurerm_storage_account" "storage" {
-#   name                     = "tfstatestg"
-#   resource_group_name      = azurerm_resource_group.rg.name
-#   location                 = azurerm_resource_group.rg.location
-#   account_tier            = "Standard"
-#   account_replication_type = "LRS"
-# }
-
-# resource "azurerm_storage_container" "container" {
-#   name                  = "tfstatefiles"
-#   storage_account_name  = azurerm_storage_account.storage.name
-# }
 
 provider "azurerm" {
   features {}
 }
 
 variable "resource_group_name" {
-  default = "tf-linux-rg"
+  default = "Azure-RG"
 }
 
 variable "location" {
@@ -37,7 +13,7 @@ variable "location" {
 }
 
 variable "vm_name" {
-  default = "tf-linux-vm"
+  default = "Azure-linux-vm"
 }
 
 variable "admin_username" {

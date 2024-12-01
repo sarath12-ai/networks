@@ -24,6 +24,7 @@
         state: started
         enabled: yes
 
+###  Stage 3 ########################################
     # # Copy Dockerfile to VM
     - name: Copy Dockerfile to VM
       ansible.builtin.copy:
@@ -32,10 +33,10 @@
         owner: azureuser
         mode: '0644'
 
-    # Copy application code to VM
+    # # Copy application code to VM
     - name: Copy application code to VM
       ansible.builtin.copy:
-        src: ./app  # Adjust path if necessary
+        src: ./html  # Adjust path if necessary
         dest: /home/azureuser/
         owner: azureuser
         mode: '0644'
@@ -43,20 +44,9 @@
     # # Build Docker image
     - name: Build Docker image
       ansible.builtin.command:
-        cmd: docker build -t basicapp:latest /home/azureuser/
-        
-    # Stop and remove existing Docker container (if any)
-    - name: Stop and remove existing Docker container
-      ansible.builtin.shell: |
-        CONTAINER_ID=$(docker ps -q -f "publish=80")
-        if [ -n "$CONTAINER_ID" ]; then
-          echo "Stopping and removing existing container with ID: $CONTAINER_ID"
-          docker stop $CONTAINER_ID
-          docker rm $CONTAINER_ID
-        else
-          echo "No container found running on port 8080"
-        fi
+        cmd: docker build -t myapp:latest /home/azureuser/
+
     # # Run Docker container
     - name: Run Docker container
       ansible.builtin.command:
-        cmd: docker run -d -p 8083:80 basicapp:latest
+        cmd: docker run -d -p 80:80 myapp:latest
