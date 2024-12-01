@@ -3,7 +3,7 @@ provider "azurerm" {
 }
 
 variable "resource_group_name" {
-  default = "network-rg"
+  default = "network-vm-rg"
 }
 
 variable "location" {
@@ -12,7 +12,7 @@ variable "location" {
 
 
 variable "vm_name" {
-  default = "network-vm"
+  default = "network-azure"
 }
 
 variable "admin_username" {
