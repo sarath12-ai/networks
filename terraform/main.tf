@@ -1,19 +1,18 @@
-
-
 provider "azurerm" {
   features {}
 }
 
 variable "resource_group_name" {
-  default = "Azure-RG"
+  default = "network-rg"
 }
 
 variable "location" {
   default = "west US"
 }
 
+
 variable "vm_name" {
-  default = "Azure-linux-vm"
+  default = "network-vm"
 }
 
 variable "admin_username" {
@@ -32,12 +31,12 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
-# Virtual Network
+# Virtual Network for vm
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.vm_name}-vnet"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  address_space       = ["10.0.0.0/23"]
+  address_space       = ["192.168.0.0/23"]
 }
 
 # Subnet
@@ -45,7 +44,7 @@ resource "azurerm_subnet" "subnet" {
   name                 = "${var.vm_name}-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.0.0/24"]
+  address_prefixes     = ["192.168.0.0/24"]
 }
 
 # Public IP Address
@@ -72,7 +71,7 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_network_security_group" "nsg" {
-  name                = "Network-NSG"
+  name                = "VM-NSG"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -116,6 +115,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
 
   admin_username = var.admin_username
 
+#authenticating using ssh public key
   # Use the generated SSH public key
   admin_ssh_key {
     username   = var.admin_username
@@ -146,6 +146,3 @@ output "private_key" {
   value     = tls_private_key.ssh_key.private_key_pem
   sensitive = true
 }
-
-
-
