@@ -1,5 +1,4 @@
 # .github/workflows/deploy.yml
-
 name: Deploy HTML App with Terraform, Ansible, and Docker
 
 on:
