@@ -1,6 +1,5 @@
 ---
 # ansible-playbook.yml
-
 - name: Set up Docker and deploy container on Azure VM
   hosts: all
   become: true
