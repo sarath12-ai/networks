@@ -3,7 +3,7 @@ provider "azurerm" {
 }
 
 variable "resource_group_name" {
-  default = "network-rg"
+  default = "network-rg1"
 }
 
 variable "location" {
