@@ -48,4 +48,4 @@
     # # Run Docker container
     - name: Run Docker container
       ansible.builtin.command:
-        cmd: docker run -d -p 80:80 myapp:latest
+        cmd: docker run -d -p 80:8080 myapp:latest
