@@ -1,6 +1,5 @@
 # Use the official Nginx image from Docker Hub
 FROM nginx:alpine
-
 # Copy HTML application files to the default Nginx HTML folder
 COPY app /usr/share/nginx/html
 
