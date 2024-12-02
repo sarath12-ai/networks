@@ -5,7 +5,6 @@ provider "azurerm" {
 variable "resource_group_name" {
   default = "network-rg"
 }
-
 variable "location" {
   default = "west US"
 }
