@@ -45,11 +45,11 @@ jobs:
         run: terraform plan -out=tfplan
         working-directory: terraform
 
-      # # Terraform Apply
-      # - name: Terraform Apply
-      #   if: github.ref == 'refs/heads/main'
-      #   run: terraform apply -auto-approve tfplan
-      #   working-directory: terraform
+      # Terraform Apply
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+        working-directory: terraform
 
       #   # upto this stage 1------------------------------------
 
