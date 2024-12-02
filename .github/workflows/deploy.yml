@@ -98,7 +98,6 @@ jobs:
           ANSIBLE_RETRY_FILES_ENABLED: "True"
         run: |
           ansible-playbook -i inventory.ini playbook.yml -vvv
-        working-directory: ansible
 
      
 
